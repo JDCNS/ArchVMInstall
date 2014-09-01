@@ -84,8 +84,9 @@ echo "Please look for any errors, then press any key to continue."
 AnyKey
 
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
-wget -O /etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=US&protocol=http&protocol=https&use_mirror_status=on'
-
+wget -O mirrorlist.new 'https://www.archlinux.org/mirrorlist/?country=US&protocol=http&protocol=https&use_mirror_status=on'
+cat mirrorlist.new | sed -e '7,17s/^\#Server/Server/g' > /etc/pacman.d/mirrorlist
+echo
 echo "We will now download and install the core packages."
 AnyKey
 pacstrap -i /mnt base base-devel
