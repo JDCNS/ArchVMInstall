@@ -83,11 +83,8 @@ swapon /dev/mapper/vg0-swap
 echo "Please look for any errors, then press any key to continue."
 AnyKey
 
-echo "You will now inspect the package download mirrors and adjust if"
-echo "needed."
-echo
-AnyKey
-nano /etc/pacman.d/mirrorlist
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
+wget -O /etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=US&protocol=http&protocol=https&use_mirror_status=on'
 
 echo "We will now download and install the core packages."
 AnyKey
