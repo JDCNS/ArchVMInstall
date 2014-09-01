@@ -73,11 +73,11 @@ mkswap /dev/mapper/vg0-swap
 
 echo "Mounting the logical volumes to install Arch Linux onto"
 echo "them. Watch for errors!"
-mount /dev/mapper/vg0-root /mnt # /mnt is our system's "/" root   directory
+mount -v /dev/mapper/vg0-root /mnt # /mnt is our system's "/" root   directory
 mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount -v /dev/sda1 /mnt/boot
 mkdir /mnt/home
-mount /dev/mapper/vg0-home /mnt/home
+mount -v /dev/mapper/vg0-home /mnt/home
 swapon /dev/mapper/vg0-swap
 
 echo "Please look for any errors, then press any key to continue."
@@ -116,6 +116,6 @@ AnyKey
 umount /mnt/boot
 umount /mnt/home
 umount /mnt
-swapoff
+swapoff -a
 reboot
 
