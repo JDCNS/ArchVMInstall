@@ -4,6 +4,7 @@
 #
 # See https://github.com/JDCNS/ArchVMInstall for details.
 #
+# you can grabe this via: wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
 
 CONSOLEFONT="default8x16"
 TIMEZONE="America/New_York"
@@ -53,16 +54,17 @@ echo "$MYHOSTNAME" > /etc/hostname
 # /etc/systemd/system/multi-user.target.wants/dhcpcd@eth0.service to
 # /etc/systemd/system/multi-user.target.wants/dhcpcd@eth1.service.
 
-iwconfig
-if [ "${INSTALLINGINVM}" -ne "Y" ]
-	echo "Type in one of the above device names"
-	echo -n "to enable networking: "
-	read DEVICENAME
-	systemctl enable dhcpcd@${DEVICENAME}.service
-fi
+echo "Your network devices:"
+ip link
+echo
+echo "Type in the above device name to use"
+echo -n "to enable networking: "
+read DEVICENAME
+systemctl enable dhcpcd@${DEVICENAME}.service
 
 echo "Inspect package repos. You will want to disable the [testing] repos"
 echo "if not already commented out."
+AnyKey
 nano /etc/pacman.conf
 
 echo "Set up the root user (administrator) password."
@@ -107,7 +109,7 @@ mkinitcpio -p linux
 #
 pacman -S syslinux
 syslinux-install_update -i -a -m
-BOOTUUID=$(ls -l /dev/disk/by-uuid | grep /sda1 | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
+BOOTUUID=$(ls -l /dev/disk/by-uuid | grep /sda2 | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
 echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks root=/dev/mapper/vg0-root resume=/dev/mapper/vg0-swap rw" >> /boot/syslinux/syslinux.cfg
 echo
 echo "UUID of /dev/sda2 is $BOOTUUID"
@@ -120,19 +122,11 @@ nano /boot/syslinux/syslinux.cfg
 # This will seem like an odd place to put this, and it is!
 # However, this has to be run twice b/c of a bug in the install
 if [ "${INSTALLINGINVM}" -eq "Y" ]
-	pacman -S virtualbox-gues-utils
+	pacman -S virtualbox-guest-utils
 fi
 
 echo
 echo "Now exiting chroot environment."
-echo "Be sure to do the following:"
-echo
-echo "umount /mnt/boot"
-echo "umount /mnt/home"
-echo "umount /mnt"
-echo "swapoff"
-echo "reboot"
-echo
-AnyKey
 exit
+
 

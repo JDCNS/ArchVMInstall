@@ -2,13 +2,15 @@
 # Simple script to lead you through Arch VM install using encrypted
 # partition with LVM containers.
 #
-# Why?
-# LVM on LUKS
-# A simple way to realize encrypted swap with suspend-to-disk support is by
+# You can download from the Arch install prompt via "wget https://github.com/JDCNS/ArchVMInstall/raw/master/baseinstall.bash"
+#
+# Why LVM on LUKS?
+# "LVM on LUKS
+# "A simple way to realize encrypted swap with suspend-to-disk support is by
 # using LVM ontop the encryption layer, so one encrypted partition can
 # contain infinite filesystems (root, swap, home, ...). Follow the
 # instructions on Dm-crypt/Encrypting an entire system#LVM on LUKS and then
-# just configure the required kernel parameters.
+# just configure the required kernel parameters."
 #
 # ~ https://wiki.archlinux.org/index.php/Dm-crypt/Swap_encryption#LVM_on_LUKS
 #
@@ -45,6 +47,7 @@ AnyKey
 cfdisk /dev/sda
 
 echo "We'll now setup LUKS encryption"
+echo "Be sure to put in your encryption password when prompted."
 AnyKey
 
 cryptsetup -c aes-xts-plain -y -s 512 luksFormat /dev/sda2
@@ -99,8 +102,20 @@ echo
 AnyKey
 genfstab -U -p /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
-echo "End of initial part of install"
+
+wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
+chmod a+x vmconfigure.bash
+cp vmconfigure.bash /mnt
+arch-chroot /mnt /vmconfigure.bash
 echo
-echo "Now run 'arch-chroot /mnt /bin/bash', grab vmconfigure.bash"
-echo "and run it to continue."
+echo "The terminal portion of the install has finished."
+echo "Next, the computer will reboot into the new installation"
+echo "if all went well."
+AnyKey
+
+umount /mnt/boot
+umount /mnt/home
+umount /mnt
+swapoff
+reboot
 
