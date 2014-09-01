@@ -43,17 +43,7 @@ echo "Choose your computer's name. Keep it simple, without spaces."
 read MYHOSTNAME
 echo "$MYHOSTNAME" > /etc/hostname
 
-# VirtualBox changes all of this. I don't think it's needed now
-#
-# Enable DHCPCD... aka "acquire dynamic ip address from your router/switch".  Be
-# sure to choose the right device name (typically eth0 or eth1 (eth2, if you
-# have 3 ethernet ports)); you can find out the correct device name with `ip
-# link` (look for the device under the first entry, `lo`.). If you choose the
-# wrong "eth" number, just go to /etc/systemd/system/multi-user.target.wants/
-# and rename the symlink; e.g., rename
-# /etc/systemd/system/multi-user.target.wants/dhcpcd@eth0.service to
-# /etc/systemd/system/multi-user.target.wants/dhcpcd@eth1.service.
-
+echo "Enable DHCPCD..."
 echo "Your network devices:"
 ip link
 echo
@@ -84,7 +74,7 @@ echo "Set password for ${MYUSERNAME}"
 passwd ${MYUSERNAME}
 
 mv /etc/mkinitcpio.conf /etc/mkinitcpio.conf.old
-sed "s/^MODULES=\"\"/MODULES=\"ext4\"/" mkinitcpio.conf.old | sed "/^HOOKS=/s/filesystems/encrypt lvm2 filesystems/" > /etc/mkinitcpio.conf
+sed "s/^MODULES=\"\"/MODULES=\"ext4\"/" /etc/mkinitcpio.conf.old | sed "/^HOOKS=/s/filesystems/encrypt lvm2 filesystems/" > /etc/mkinitcpio.conf
 
 echo "Inspect mkinitcpio."
 echo
