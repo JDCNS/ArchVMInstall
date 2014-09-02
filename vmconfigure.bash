@@ -114,6 +114,31 @@ nano /boot/syslinux/syslinux.cfg
 # However, this has to be run twice b/c of a bug in the install
 if [ "${INSTALLINGINVM}" -eq "Y" ]
 	pacman -S virtualbox-guest-utils
+# -----------------------------------------------
+# Begin here document
+(
+cat <<'EOF'
+Section "InputDevice"
+Identifier "Mouse0"
+Driver "vboxmouse"
+Option "Device" "/dev/vboxguest"
+Option "CorePointer" "yes"
+EndSection
+
+Section "Device"
+Identifier "Card0"
+Driver "vboxvideo"
+EndSection
+EOF
+) > /etc/xorg.conf
+# End here document
+# -----------------------------------------------
+	systemctl start vboxguest
+	systemctl start vboxsf
+	systemctl start vboxvideo
+	systemctl enable vboxguest
+	systemctl enable vboxsf
+	systemctl enable vboxvideo
 fi
 # Here is why VM sf didn't work
 usermod -a -G vboxsf ${MYUSERNAME}
