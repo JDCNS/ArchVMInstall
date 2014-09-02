@@ -50,7 +50,7 @@ echo
 echo "Type in the above device name to use"
 echo -n "to enable networking: "
 read DEVICENAME
-systemctl enable dhcpcd@${DEVICENAME}.service
+systemctl enable "dhcpcd@${DEVICENAME}.service"
 
 echo "Inspect package repos. You will want to disable the [testing] repos"
 echo "if not already commented out."
@@ -70,7 +70,7 @@ echo -n "Input your regular login name: "
 read MYUSERNAME
 # Another area that caused grief was vboxsf was missing.
 # However, need to add after guest additions are installed.
-useradd -m -g users -G wheel,storage,power -s /bin/zsh ${MYUSERNAME}
+useradd -m -g users -G wheel,storage,power -s /bin/zsh "${MYUSERNAME}"
 echo "Set password for ${MYUSERNAME}"
 passwd ${MYUSERNAME}
 
@@ -112,7 +112,8 @@ nano /boot/syslinux/syslinux.cfg
 
 # This will seem like an odd place to put this, and it is!
 # However, this has to be run twice b/c of a bug in the install
-if [ "${INSTALLINGINVM}" -eq "Y" ]
+if [ "${INSTALLINGINVM}" = "Y" ]
+then
 	pacman -S virtualbox-guest-utils
 # -----------------------------------------------
 # Begin here document
@@ -140,13 +141,16 @@ EOF
 	systemctl enable vboxsf
 	systemctl enable vboxvideo
 fi
+echo "Inspect the above for errors."
+AnyKey
 # Here is why VM sf didn't work
-usermod -a -G vboxsf ${MYUSERNAME}
+usermod -a -G vboxsf "${MYUSERNAME}"
 echo
 echo "Installing sudo"
 pacman -S sudo
 echo
 echo "Modifying sudoers..."
+mv /etc/sudoers /etc/sudoers.old
 sed 's/^\# \%wheel ALL=(ALL) ALL/\%wheel ALL=(ALL) ALL/' /etc/sudoers.old > /etc/sudoers
 echo
 echo "Now review sudoers file to ensure appropriate permissions"
