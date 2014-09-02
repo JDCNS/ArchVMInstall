@@ -150,11 +150,16 @@ echo "Modifying sudoers..."
 sed 's/^\# \%wheel ALL=(ALL) ALL/\%wheel ALL=(ALL) ALL/' /etc/sudoers.old > /etc/sudoers
 echo
 echo "Now review sudoers file to ensure appropriate permissions"
+AnyKey
 EDITOR=nano visudo
 echo
 echo "Now installing wget."
 pacman -S wget
-
+echo
+echo "Check for any error msgs."
+echo
+echo "Press any key to leave chroot environment."
+AnyKey
 # End of script
 echo
 echo "Now exiting chroot environment."

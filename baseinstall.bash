@@ -102,8 +102,12 @@ genfstab -U -p /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
 
 wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
+wget https://github.com/JDCNS/ArchVMInstall/raw/master/installdesktop.bash
 chmod a+x vmconfigure.bash
 cp vmconfigure.bash /mnt
+chmod a+x installdesktop.zsh
+cp installdesktop.zsh /mnt
+
 arch-chroot /mnt /vmconfigure.bash
 echo
 echo "The terminal portion of the install has finished."

@@ -4,7 +4,7 @@
 #
 # See https://github.com/JDCNS/ArchVMInstall for details.
 #
-# you can grab this via: wget https://github.com/JDCNS/ArchVMInstall/raw/master/installdesktop.bash
+# you can grab this via: wget https://github.com/JDCNS/ArchVMInstall/raw/master/installdesktop.zsh
 # If you went through previous script OK, you should have wget
 # installed already.
 #
