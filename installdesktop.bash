@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 #
 # Part 3 of ArchVMInstall
 #
@@ -24,7 +24,7 @@ AnyKey()
 }
 
 echo "Checking network..."
-ping www.google.com
+ping -c3 www.google.com
 if [ $? -ne 0 ]
 then
 	echo "Error pinging Google!"
@@ -35,7 +35,9 @@ echo
 echo "Checking for updates."
 sudo pacman -Syu
 echo
+cp ~/.zshrc ~/.zshrc.old
 echo "Modifying zsh prompt."
+echo >> ~/.zshrc
 echo "autoload -U compinit promptinit" >> ~/.zshrc
 echo "compinit" >> ~/.zshrc
 echo "promptinit" >> ~/.zshrc
@@ -52,6 +54,9 @@ read PTHEME
 echo "prompt $PTHEME" >> ~/.zshrc
 prompt $PTHEME
 echo
+echo "Now inspect your .zshrc for errors."
+AnyKey
+echo
 echo "Installing ALSA utils and mixer"
 sudo pacman -S alsa-utils
 echo
@@ -63,8 +68,8 @@ echo
 AnyKey
 alsamixer
 echo
-echo "Now testing speakers; press [Ctrl]-[C] to stop..."
-speaker-test -c 2
+echo "Now testing left and right speakers..."
+speaker-test -c 2 -l 3
 echo
 echo
 echo "Installing X windows."
@@ -73,9 +78,10 @@ echo
 # I know, this seems dumb; that's because it is.
 # However, it very often doesn't work the first time.
 if [ "${INSTALLINGINVM}" -eq "Y" ]
+then
 	echo "Reinstalling guest additions for VirtualBox"
 	echo "(yes, it's necessary)."
-	pacman -S virtualbox-guest-utils
+	sudo pacman -S virtualbox-guest-utils
 	sudo chmod a+rwx /media
 	echo "If you have any shared folders, be sure to modify directory"
 	echo "(not file and subdirectory) permissions."
