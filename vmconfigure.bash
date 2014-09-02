@@ -68,8 +68,9 @@ echo "of the root account normally."
 echo
 echo -n "Input your regular login name: "
 read MYUSERNAME
-# Another area that caused grief was vboxsf was missing
-useradd -m -g users -G wheel,storage,power,vboxsf -s /bin/zsh ${MYUSERNAME}
+# Another area that caused grief was vboxsf was missing.
+# However, need to add after guest additions are installed.
+useradd -m -g users -G wheel,storage,power -s /bin/zsh ${MYUSERNAME}
 echo "Set password for ${MYUSERNAME}"
 passwd ${MYUSERNAME}
 
@@ -114,9 +115,23 @@ nano /boot/syslinux/syslinux.cfg
 if [ "${INSTALLINGINVM}" -eq "Y" ]
 	pacman -S virtualbox-guest-utils
 fi
+# Here is why VM sf didn't work
+usermod -a -G vboxsf ${MYUSERNAME}
+echo
+echo "Installing sudo"
+pacman -S sudo
+echo
+echo "Modifying sudoers..."
+sed 's/^\# \%wheel ALL=(ALL) ALL/\%wheel ALL=(ALL) ALL/' /etc/sudoers.old > /etc/sudoers
+echo
+echo "Now review sudoers file to ensure appropriate permissions"
+EDITOR=nano visudo
+echo
+echo "Now installing wget."
+pacman -S wget
 
+# End of script
 echo
 echo "Now exiting chroot environment."
 exit
-
 
