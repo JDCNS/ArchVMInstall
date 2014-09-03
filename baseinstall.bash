@@ -102,13 +102,44 @@ genfstab -U -p /mnt >> /mnt/etc/fstab
 nano /mnt/etc/fstab
 
 wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
-wget https://github.com/JDCNS/ArchVMInstall/raw/master/installdesktop.zsh
-chmod a+x vmconfigure.bash
-cp vmconfigure.bash /mnt
-chmod a+x installdesktop.zsh
-cp installdesktop.zsh /mnt
+if [ $? -ne 0 ]
+then
+	echo
+	echo "***********************************************"
+	echo " ERROR!                                       *"
+	echo "A problem occured getting vmconfigure.bash.   *"
+	echo "Script will now exit!                         *"
+	echo "***********************************************"
+	AnyKey
+	exit 1
+else
+	echo "Got vmconfigure.bash script OK."
+fi
 
+wget https://github.com/JDCNS/ArchVMInstall/raw/master/installdesktop.zsh
+if [ $? -ne 0 ]
+then
+	echo
+	echo "***********************************************"
+	echo " WARNING!                                     *"
+	echo "A problem occured getting installdesktop.zsh. *"
+	echo "Script will continue for base install.        *"
+	echo "***********************************************"
+	AnyKey
+else
+	echo "Got installdesktop.zsh script OK."
+fi
+
+chmod a+x vmconfigure.bash
+chmod a+x installdesktop.zsh
+cp -v vmconfigure.bash /mnt
+cp -v installdesktop.zsh /mnt
+echo
+echo "Now getting read to enter chroot environment."
+AnyKey
 arch-chroot /mnt /vmconfigure.bash
+echo
+echo "Returned from chroot."
 echo
 echo "The terminal portion of the install has finished."
 echo "Next, the computer will reboot into the new installation"
