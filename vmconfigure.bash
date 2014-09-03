@@ -57,12 +57,12 @@ echo "if not already commented out."
 AnyKey
 nano /etc/pacman.conf
 
-echo "Set up the root user (administrator) password."
-passwd
-
 echo "Installing zsh."
 pacman -S zsh
-
+echo
+echo "Set up the root user (administrator) password."
+passwd
+echo
 echo "Now create your regular user account. You will use this instead"
 echo "of the root account normally."
 echo
@@ -73,17 +73,18 @@ read MYUSERNAME
 useradd -m -g users -G wheel,storage,power -s /bin/zsh "${MYUSERNAME}"
 echo "Set password for ${MYUSERNAME}"
 passwd ${MYUSERNAME}
-
-mv /etc/mkinitcpio.conf /etc/mkinitcpio.conf.old
+echo
+echo
+mv -v /etc/mkinitcpio.conf /etc/mkinitcpio.conf.old
 sed "s/^MODULES=\"\"/MODULES=\"ext4\"/" /etc/mkinitcpio.conf.old | sed "/^HOOKS=/s/filesystems/encrypt lvm2 filesystems/" > /etc/mkinitcpio.conf
-
+echo 
 echo "Inspect mkinitcpio."
 echo
 echo "VERY IMPORTANT: Be sure 'ext4' is inserted into the MODULES"
 echo "variable and also 'encrypt' and 'lvm2' is in HOOKS."
 AnyKey
 nano /etc/mkinitcpio.conf
-
+echo
 # Re-generate the linux image to take into account the LVM and encrypt
 # flags we added into /etc/mkinitcpio.conf. I say "re-generate" because this
 # is our second time doing this (the first time was when we installed the
@@ -103,9 +104,10 @@ syslinux-install_update -i -a -m
 BOOTUUID=$(ls -l /dev/disk/by-uuid | grep /sda2 | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
 echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks root=/dev/mapper/vg0-root resume=/dev/mapper/vg0-swap rw" >> /boot/syslinux/syslinux.cfg
 echo
-echo "UUID of /dev/sda2 is $BOOTUUID"
-echo "Look for this line at the bottom of /boot/syslinux/syslinux.cfg"
-echo "and move it under the 'LABEL arch' entries"
+echo "***UUID of /dev/sda2 is ${BOOTUUID}***"
+echo "Look for line containing this at the bottom of"
+echo " /boot/syslinux/syslinux.cfg and move it under"
+echo " both the 'LABEL arch' entries"
 echo
 AnyKey
 nano /boot/syslinux/syslinux.cfg
@@ -134,15 +136,15 @@ EOF
 ) > /etc/xorg.conf
 # End here document
 # -----------------------------------------------
-	systemctl start vboxguest
-	systemctl start vboxsf
+	echo
+	echo
+	echo "Starting VBox services..."
+	echo
 	systemctl start vboxvideo
-	systemctl enable vboxguest
-	systemctl enable vboxsf
 	systemctl enable vboxvideo
 fi
-echo "Inspect the above for errors."
-AnyKey
+echo
+echo
 # Here is why VM sf didn't work
 usermod -a -G vboxsf "${MYUSERNAME}"
 echo
