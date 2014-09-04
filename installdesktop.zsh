@@ -56,6 +56,7 @@ prompt $PTHEME
 echo
 echo "Now inspect your .zshrc for errors."
 AnyKey
+nano ~/.zshrc
 echo
 echo "Installing ALSA utils and mixer"
 sudo pacman -S alsa-utils
@@ -77,14 +78,24 @@ sudo pacman -S xorg-server xorg-xinit xorg-server-utils
 echo
 # I know, this seems dumb; that's because it is.
 # However, it very often doesn't work the first time.
-if [ "${INSTALLINGINVM}" -eq "Y" ]
+if [ "${INSTALLINGINVM}" = "Y" ]
 then
 	echo "Reinstalling guest additions for VirtualBox"
 	echo "(yes, it's necessary)."
-	sudo pacman -S virtualbox-guest-utils
+	sudo pacman -S virtualbox-guest-utils virtualbox-guest-modules virtualbox-guest-dkms
 	sudo chmod a+rwx /media
 	echo "If you have any shared folders, be sure to modify directory"
 	echo "(not file and subdirectory) permissions."
+	AnyKey
+	echo
+	echo
+	echo "Starting VBox services..."
+	echo
+	sudo systemctl start vboxvideo
+	sudo systemctl enable vboxvideo
+	echo
+	echo
+	echo "Check for errors."
 	AnyKey
 fi
 
@@ -93,6 +104,6 @@ echo "Installing basic desktop items."
 sudo pacman -S xorg-twm xorg-xclock xterm
 echo
 echo "Preparing to start desktop ..."
-sleep 15
+sleep 5
 startx
 
