@@ -31,9 +31,10 @@ setfont ${CONSOLEFONT}
 echo "FONT=${CONSOLEFONT}" > /etc/vconsole.conf
 
 echo "Setting timezone."
-# Here I had a little difficulty, as /etc/localtime already existed
-rm /etc/localtime
-ln -s /usr/share/zoneinfo/"${TIMEZONE}" /etc/localtime
+# Here I had a little difficulty, as /etc/localtime already existed,
+# but then later on it didn't?
+rm /etc/localtime 2>/dev/null
+ln -v -s /usr/share/zoneinfo/"${TIMEZONE}" /etc/localtime
 hwclock --systohc --utc
 
 echo "Please check output for errors."
@@ -142,6 +143,8 @@ EOF
 	echo
 	systemctl start vboxvideo
 	systemctl enable vboxvideo
+	echo
+	echo "Keep in mind, errors are expected at this point."
 fi
 echo
 echo
