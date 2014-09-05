@@ -10,7 +10,8 @@
 #
 # This portion of the install owes a lot to LifeHacker article
 # "Build a Killer Customized Arch Linux Installation (and Learn All
-# About Linux in the Process)" by Whitson Gordon
+# About Linux in the Process)" by Whitson Gordon at
+# http://lifehacker.com/5680453/build-a-killer-customized-arch-linux-installation-and-learn-all-about-linux-in-the-process
 #
 # Requirements: Working network and base installation, sudo installed
 # (assumes you will be logged in as your regular user and not root).
