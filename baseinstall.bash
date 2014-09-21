@@ -22,18 +22,64 @@
 #
 # 
 
-# Important variables
-# VM is assumed to have 18GB VDI.
-# Change if different
-BOOTSIZE="250MB"
-ROOTSIZE="10G"
-SWAPSIZE="2G"
-
 AnyKey()
 {
 	echo "Press any key when ready or [Ctr]-[C] to cancel."
 	read ANYKEY
 }
+
+# Important variables
+INSTALLINGINVM="Y"
+if [ "$INSTALLINGVM" = "Y" ]
+then
+	# VM is assumed to have 18GB VDI.
+	# Change if different
+	BOOTSIZE="250MB"
+	ROOTSIZE="10G"
+	SWAPSIZE="2G"
+else
+	echo
+	echo "We need to specify partition sizes."
+	echo "Normally, the boot partition can be small, but you"
+	echo "should leave room for upgrades."
+	echo "Minimum should be 100MB, but recommend 250MB."
+	echo "If you change it DON'T FORGET 'MB' AT END."
+	echo
+	echo -n "Input number of MB for /boot [250MB]: "
+	read BOOTSIZE
+	if [ "$BOOTSIZE." = "." ]
+	then
+		BOOTSIZE="250MB"
+	fi
+	echo
+	echo "Root directory needs enough for programs and system files."
+	echo "Default is 40GB (does anyone really use that much?)."
+	echo
+	echo -n "Input size of / [40G]: "
+	read ROOTSIZE
+	if [ "$ROOTSIZE." = "." ]
+	then
+		ROOTSIZE="40G"
+	fi
+	echo
+	echo "Swap size should be at least twice your RAM for"
+	echo " hibernation.  4GB RAM is assumed."
+	echo
+	echo -n "Input size of /swap [8G]: "
+	read SWAPSIZE
+	if [ "$SWAPSIZE." = "." ]
+	then
+		SWAPSIZE="8G"
+	fi
+	echo
+	echo "Let's review:"
+	echo "/boot : $BOOTSIZE"
+	echo "/ :     $ROOTSIZE"
+	echo "/swap : $SWAPSIZE"
+	echo "and rest for /home"
+	echo "If this is not OK, be sure to [Ctr]-[C] now!"
+	AnyKey
+fi
 
 echo "Set up 2 PRIMARY partitions:"
 echo "This script assumes ${BOOTSIZE} for boot partition and"
@@ -85,7 +131,7 @@ AnyKey
 
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.old
 wget -O mirrorlist.new 'https://www.archlinux.org/mirrorlist/?country=US&protocol=http&protocol=https&use_mirror_status=on'
-cat mirrorlist.new | sed -e '7,17s/^\#Server/Server/g' > /etc/pacman.d/mirrorlist
+sed -e '7,17s/^\#Server/Server/g' mirrorlist.new > /etc/pacman.d/mirrorlist
 echo
 echo "We will now download and install the core packages."
 AnyKey
@@ -137,7 +183,7 @@ cp -v installdesktop.zsh /mnt
 echo
 echo "Now getting read to enter chroot environment."
 AnyKey
-arch-chroot /mnt /vmconfigure.bash
+arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM"
 echo
 echo "Returned from chroot."
 echo

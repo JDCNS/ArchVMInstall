@@ -6,9 +6,15 @@
 #
 # you can grabe this via: wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
 
+if [ "$1" = "Y" -o "$1" = "y" -o "$1." = "." ]
+then
+	INSTALLINGINVM="Y"
+else
+	INSTALLINGINVM="N"
+fi
+
 CONSOLEFONT="default8x16"
 TIMEZONE="America/New_York"
-INSTALLINGINVM="Y"
 
 AnyKey()
 {
@@ -77,7 +83,7 @@ passwd ${MYUSERNAME}
 echo
 echo
 mv -v /etc/mkinitcpio.conf /etc/mkinitcpio.conf.old
-sed "s/^MODULES=\"\"/MODULES=\"ext4\"/" /etc/mkinitcpio.conf.old | sed "/^HOOKS=/s/filesystems/encrypt lvm2 filesystems/" > /etc/mkinitcpio.conf
+sed "s/^MODULES=\"\"/MODULES=\"ext4\"/" /etc/mkinitcpio.conf.old | sed "/^HOOKS=/s/filesystems/encrypt lvm2 resume filesystems/" > /etc/mkinitcpio.conf
 echo 
 echo "Inspect mkinitcpio."
 echo
@@ -145,11 +151,11 @@ EOF
 	systemctl enable vboxvideo
 	echo
 	echo "Keep in mind, errors are expected at this point."
-fi
-echo
-echo
-# Here is why VM sf didn't work
-usermod -a -G vboxsf "${MYUSERNAME}"
+	# Here is why VM sf didn't work
+	usermod -a -G vboxsf "${MYUSERNAME}"
+	echo
+fi # [ "${INSTALLINGINVM}" = "Y" ]
+
 echo
 echo "Installing sudo"
 pacman -S sudo
