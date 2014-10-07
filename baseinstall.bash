@@ -30,7 +30,7 @@ AnyKey()
 
 # Important variables
 INSTALLINGINVM="Y"
-if [ "$INSTALLINGVM" = "Y" ]
+if [ "$INSTALLININGVM" = "Y" ]
 then
 	# VM is assumed to have 18GB VDI.
 	# Change if different
