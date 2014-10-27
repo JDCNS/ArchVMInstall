@@ -38,9 +38,11 @@ LVMGROUP="vg0"
 echo
 echo -n "Are you installing in a VM [Y/n]? "
 read INSTALLINGINVM
-if [ "$INSTALLINGINVM" = "y" -o "$INSTALLINGINVM." = "." ]
+if [ "$INSTALLINGINVM" = "y" -o "$INSTALLINGINVM" = "Y" -o "$INSTALLINGINVM." = "." ]
 then
 	INSTALLINGINVM = "Y"
+else
+	INSTALLINGINVM = "N"
 fi
 
 if [ "$INSTALLINGINVM" = "Y" ]
