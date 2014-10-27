@@ -29,14 +29,28 @@ AnyKey()
 }
 
 # Important variables
-INSTALLINGINVM="Y"
-if [ "$INSTALLININGVM" = "Y" ]
+INSTALLDISK="/dev/sda"
+BOOTPART="1"
+SYSTEMPART="2"
+LVMGROUP="vg0"
+# Well, after setting up a test machine, you might want to do the real thing, and for me
+# it is far too easy to forget to change this variable (not sure why, it just is).
+echo
+echo -n "Are you installing in a VM [Y/n]? "
+read INSTALLINGINVM
+if [ "$INSTALLINGINVM" = "y" -o "$INSTALLINGINVM." = "." ]
 then
-	# VM is assumed to have 18GB VDI.
+	INSTALLINGINVM = "Y"
+fi
+
+if [ "$INSTALLINGINVM" = "Y" ]
+then
+	# VM is assumed to have 14GB VDI.
 	# Change if different
 	BOOTSIZE="250MB"
-	ROOTSIZE="10G"
-	SWAPSIZE="2G"
+	ROOTSIZE="8G"
+	SWAPSIZE="1G"
+	HOMESIZE="-l +100%FREE"
 else
 	echo
 	echo "We need to specify partition sizes."
@@ -72,11 +86,23 @@ else
 		SWAPSIZE="8G"
 	fi
 	echo
+	echo "Home size is normally largest on a PC, so"
+	echo " assuming rest of drive unless you change it."
+	echo " Use --size homesizeG if not."
+	echo
+	echo -n "Input parameters for /home [-l +100%FREE]: "
+	read HOMESIZE
+	if [ "$HOMESIZE." = "." ]
+	then
+		HOMESIZE="-l +100%FREE"
+	fi
+
+	echo
 	echo "Let's review:"
 	echo "/boot : $BOOTSIZE"
 	echo "/ :     $ROOTSIZE"
 	echo "/swap : $SWAPSIZE"
-	echo "and rest for /home"
+	echo "and $HOMESIZE for /home"
 	echo "If this is not OK, be sure to [Ctr]-[C] now!"
 	AnyKey
 fi
@@ -90,41 +116,41 @@ echo "Second primary partition must be type '8E'."
 echo
 AnyKey
 
-cfdisk /dev/sda
+cfdisk "$INSTALLDISK"
 
 echo "We'll now setup LUKS encryption"
 echo "Be sure to put in your encryption password when prompted."
 AnyKey
 
-cryptsetup -c aes-xts-plain -y -s 512 luksFormat /dev/sda2
+cryptsetup -c aes-xts-plain -y -s 512 luksFormat "${INSTALLDISK}${SYSTEMPART}"
 
 echo "We now need to decrypt partition just set up and mount it."
 echo "Be sure to enter same password you just used to create it."
 
-cryptsetup luksOpen /dev/sda2 luks
+cryptsetup luksOpen "${INSTALLDISK}${SYSTEMPART}" luks
 
-echo "Setting up LVM volume group 'vg0' with 'vg0-root', 'vg0-swap',"
-echo "and vg0-home containers."
+echo "Setting up LVM volume group ${LVMGROUP} with ${LVMGROUP}-root, ${LVMGROUP}-swap,"
+echo "and ${LVMGROUP}-home containers."
 pvcreate /dev/mapper/luks
-vgcreate vg0 /dev/mapper/luks
-lvcreate --size ${ROOTSIZE} vg0 --name root
-lvcreate --size ${SWAPSIZE} --contiguous y vg0 --name swap
-lvcreate -l +100%FREE vg0 --name home
+vgcreate ${LVMGROUP} /dev/mapper/luks
+lvcreate --size ${ROOTSIZE} ${LVMGROUP} --name root
+lvcreate --size ${SWAPSIZE} --contiguous y ${LVMGROUP} --name swap
+lvcreate ${HOMESIZE} ${LVMGROUP} --name home
 
 echo "Initializing filesystems with ext4 and swap."
-mkfs.ext4 /dev/sda1 # the boot partition
-mkfs.ext4 /dev/mapper/vg0-root
-mkfs.ext4 /dev/mapper/vg0-home
-mkswap /dev/mapper/vg0-swap
+mkfs.ext4 "${INSTALLDISK}${BOOTPART}" # the boot partition
+mkfs.ext4 /dev/mapper/${LVMGROUP}-root
+mkfs.ext4 /dev/mapper/${LVMGROUP}-home
+mkswap /dev/mapper/${LVMGROUP}-swap
 
 echo "Mounting the logical volumes to install Arch Linux onto"
 echo "them. Watch for errors!"
-mount -v /dev/mapper/vg0-root /mnt # /mnt is our system's "/" root   directory
+mount -v /dev/mapper/${LVMGROUP}-root /mnt # /mnt is our system's "/" root   directory
 mkdir /mnt/boot
-mount -v /dev/sda1 /mnt/boot
+mount -v "${INSTALLDISK}${BOOTPART}" /mnt/boot
 mkdir /mnt/home
-mount -v /dev/mapper/vg0-home /mnt/home
-swapon /dev/mapper/vg0-swap
+mount -v /dev/mapper/${LVMGROUP}-home /mnt/home
+swapon /dev/mapper/${LVMGROUP}-swap
 
 echo "Please look for any errors, then press any key to continue."
 AnyKey
