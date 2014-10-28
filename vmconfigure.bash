@@ -6,11 +6,29 @@
 #
 # you can grabe this via: wget https://github.com/JDCNS/ArchVMInstall/raw/master/vmconfigure.bash
 
+Usage()
+{
+	echo "Usage: $0 installinvm installpart lvmgroup"
+	echo "  ex: vmconfigure.bash Y sda2 vg0"
+	exit 1
+}
 if [ "$1" = "Y" -o "$1" = "y" -o "$1." = "." ]
 then
 	INSTALLINGINVM="Y"
 else
 	INSTALLINGINVM="N"
+fi
+if [ "$2." = "." ]
+then
+	Usage
+else
+	INSTALLPART="$2"
+fi
+if [ "$3." = "." ]
+then
+	Usage
+else
+	LVMGROUP="$3"
 fi
 
 CONSOLEFONT="default8x16"
@@ -108,10 +126,10 @@ mkinitcpio -p linux
 #
 pacman -S syslinux
 syslinux-install_update -i -a -m
-BOOTUUID=$(ls -l /dev/disk/by-uuid | grep /sda2 | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
-echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks root=/dev/mapper/vg0-root resume=/dev/mapper/vg0-swap rw" >> /boot/syslinux/syslinux.cfg
+BOOTUUID=$(ls -l /dev/disk/by-uuid | grep "/${INSTALLPART}" | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
+echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks root=/dev/mapper/${LVMGROUP}-root resume=/dev/mapper/${LVMGROUP}-swap rw" >> /boot/syslinux/syslinux.cfg
 echo
-echo "***UUID of /dev/sda2 is ${BOOTUUID}***"
+echo "***UUID of /dev/${INSTALLPART} is ${BOOTUUID}***"
 echo "Look for line containing this at the bottom of"
 echo " /boot/syslinux/syslinux.cfg and move it under"
 echo " both the 'LABEL arch' entries"
