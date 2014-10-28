@@ -29,7 +29,7 @@ AnyKey()
 }
 
 # Important variables
-INSTALLDISK="/dev/sda"
+INSTALLDISK="sda"
 BOOTPART="1"
 SYSTEMPART="2"
 LVMGROUP="vg0"
@@ -118,18 +118,18 @@ echo "Second primary partition must be type '8E'."
 echo
 AnyKey
 
-cfdisk "$INSTALLDISK"
+cfdisk "/dev/$INSTALLDISK"
 
 echo "We'll now setup LUKS encryption"
 echo "Be sure to put in your encryption password when prompted."
 AnyKey
 
-cryptsetup -c aes-xts-plain -y -s 512 luksFormat "${INSTALLDISK}${SYSTEMPART}"
+cryptsetup -c aes-xts-plain -y -s 512 luksFormat "/dev/${INSTALLDISK}${SYSTEMPART}"
 
 echo "We now need to decrypt partition just set up and mount it."
 echo "Be sure to enter same password you just used to create it."
 
-cryptsetup luksOpen "${INSTALLDISK}${SYSTEMPART}" luks
+cryptsetup luksOpen "/dev/${INSTALLDISK}${SYSTEMPART}" luks
 
 echo "Setting up LVM volume group ${LVMGROUP} with ${LVMGROUP}-root, ${LVMGROUP}-swap,"
 echo "and ${LVMGROUP}-home containers."
@@ -140,7 +140,7 @@ lvcreate --size ${SWAPSIZE} --contiguous y ${LVMGROUP} --name swap
 lvcreate ${HOMESIZE} ${LVMGROUP} --name home
 
 echo "Initializing filesystems with ext4 and swap."
-mkfs.ext4 "${INSTALLDISK}${BOOTPART}" # the boot partition
+mkfs.ext4 "/dev/${INSTALLDISK}${BOOTPART}" # the boot partition
 mkfs.ext4 /dev/mapper/${LVMGROUP}-root
 mkfs.ext4 /dev/mapper/${LVMGROUP}-home
 mkswap /dev/mapper/${LVMGROUP}-swap
@@ -149,7 +149,7 @@ echo "Mounting the logical volumes to install Arch Linux onto"
 echo "them. Watch for errors!"
 mount -v /dev/mapper/${LVMGROUP}-root /mnt # /mnt is our system's "/" root   directory
 mkdir /mnt/boot
-mount -v "${INSTALLDISK}${BOOTPART}" /mnt/boot
+mount -v "/dev/${INSTALLDISK}${BOOTPART}" /mnt/boot
 mkdir /mnt/home
 mount -v /dev/mapper/${LVMGROUP}-home /mnt/home
 swapon /dev/mapper/${LVMGROUP}-swap
@@ -211,7 +211,7 @@ cp -v installdesktop.zsh /mnt
 echo
 echo "Now getting read to enter chroot environment."
 AnyKey
-arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM"
+arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "$INSTALLDISK" "$LVMGROUP"
 echo
 echo "Returned from chroot."
 echo
