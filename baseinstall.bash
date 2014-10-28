@@ -211,7 +211,7 @@ cp -v installdesktop.zsh /mnt
 echo
 echo "Now getting read to enter chroot environment."
 AnyKey
-arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "$INSTALLDISK" "$LVMGROUP"
+arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "${INSTALLDISK}${SYSTEMPART}" "$LVMGROUP"
 echo
 echo "Returned from chroot."
 echo
