@@ -8,8 +8,8 @@
 
 Usage()
 {
-	echo "Usage: $0 installinvm installpart lvmgroup"
-	echo "  ex: vmconfigure.bash Y sda2 vg0"
+	echo "Usage: $0 installinvm installdisk partnumber lvmgroup"
+	echo "  ex: vmconfigure.bash Y sda 2 vg0"
 	exit 1
 }
 if [ "$1" = "Y" -o "$1" = "y" -o "$1." = "." ]
@@ -22,13 +22,19 @@ if [ "$2." = "." ]
 then
 	Usage
 else
-	INSTALLPART="$2"
+	INSTALLDISK="$2"
 fi
 if [ "$3." = "." ]
 then
 	Usage
 else
-	LVMGROUP="$3"
+	INSTALLPART="$3"
+fi
+if [ "$4." = "." ]
+then
+	Usage
+else
+	LVMGROUP="$4"
 fi
 
 CONSOLEFONT="default8x16"
@@ -126,10 +132,10 @@ mkinitcpio -p linux
 #
 pacman -S syslinux
 syslinux-install_update -i -a -m
-BOOTUUID=$(ls -l /dev/disk/by-uuid | grep "/${INSTALLPART}" | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
-echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks root=/dev/mapper/${LVMGROUP}-root resume=/dev/mapper/${LVMGROUP}-swap rw" >> /boot/syslinux/syslinux.cfg
+BOOTUUID=$(ls -l /dev/disk/by-uuid | grep "/${INSTALLDISK}${INSTALLPART}" | tr -s " " | cut -d' ' -f9- | cut -d' ' -f1)
+echo "APPEND cryptdevice=/dev/disk/by-uuid/${BOOTUUID}:luks${INSTALLPART} root=/dev/mapper/${LVMGROUP}-root resume=/dev/mapper/${LVMGROUP}-swap rw" >> /boot/syslinux/syslinux.cfg
 echo
-echo "***UUID of /dev/${INSTALLPART} is ${BOOTUUID}***"
+echo "***UUID of /dev/${INSTALLDISK}${INSTALLPART} is ${BOOTUUID}***"
 echo "Look for line containing this at the bottom of"
 echo " /boot/syslinux/syslinux.cfg and move it under"
 echo " both the 'LABEL arch' entries"
