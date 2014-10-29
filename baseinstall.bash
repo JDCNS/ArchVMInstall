@@ -28,7 +28,8 @@ AnyKey()
 	read ANYKEY
 }
 
-# Important variables
+# Important variables CHANGE AS NECESSARY
+# Perhaps one day I'll get around to passing these in instead
 INSTALLDISK="sda"
 BOOTPART="1"
 SYSTEMPART="2"
@@ -216,7 +217,7 @@ cp -v installdesktop.zsh /mnt
 echo
 echo "Now getting read to enter chroot environment."
 AnyKey
-arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "${INSTALLDISK}${SYSTEMPART}" "$LVMGROUP"
+arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "${INSTALLDISK}" "${SYSTEMPART}" "$LVMGROUP"
 echo
 echo "Returned from chroot."
 echo

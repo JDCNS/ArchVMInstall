@@ -12,24 +12,34 @@ Usage()
 	echo "  ex: vmconfigure.bash Y sda 2 vg0"
 	exit 1
 }
+
+AnyKey()
+{
+	echo "Press any key when ready or [Ctr]-[C] to cancel."
+	read ANYKEY
+}
+
 if [ "$1" = "Y" -o "$1" = "y" -o "$1." = "." ]
 then
 	INSTALLINGINVM="Y"
 else
 	INSTALLINGINVM="N"
 fi
+
 if [ "$2." = "." ]
 then
 	Usage
 else
 	INSTALLDISK="$2"
 fi
+
 if [ "$3." = "." ]
 then
 	Usage
 else
 	INSTALLPART="$3"
 fi
+
 if [ "$4." = "." ]
 then
 	Usage
@@ -39,12 +49,6 @@ fi
 
 CONSOLEFONT="default8x16"
 TIMEZONE="America/New_York"
-
-AnyKey()
-{
-	echo "Press any key when ready or [Ctr]-[C] to cancel."
-	read ANYKEY
-}
 
 echo "Choose and generate locale."
 echo "Just choose 'en_US.UTF-8 UTF-8' if you live in the US"
