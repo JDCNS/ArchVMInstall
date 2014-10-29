@@ -129,17 +129,22 @@ cryptsetup -c aes-xts-plain -y -s 512 luksFormat "/dev/${INSTALLDISK}${SYSTEMPAR
 echo "We now need to decrypt partition just set up and mount it."
 echo "Be sure to enter same password you just used to create it."
 
-cryptsetup luksOpen "/dev/${INSTALLDISK}${SYSTEMPART}" luks
+cryptsetup luksOpen "/dev/${INSTALLDISK}${SYSTEMPART}" "luks${SYSTEMPART}"
 
 echo "Setting up LVM volume group ${LVMGROUP} with ${LVMGROUP}-root, ${LVMGROUP}-swap,"
 echo "and ${LVMGROUP}-home containers."
-pvcreate /dev/mapper/luks
-vgcreate ${LVMGROUP} /dev/mapper/luks
+pvcreate "/dev/mapper/luks${SYSTEMPART}"
+vgcreate ${LVMGROUP} /dev/mapper/luks${SYSTEMPART}
 lvcreate --size ${ROOTSIZE} ${LVMGROUP} --name root
 lvcreate --size ${SWAPSIZE} --contiguous y ${LVMGROUP} --name swap
 lvcreate ${HOMESIZE} ${LVMGROUP} --name home
 
 echo "Initializing filesystems with ext4 and swap."
+# Save off old config if it exists
+if [ -e "/dev/${INSTALLDISK}${BOOTPART}/syslinux/syslinux.cfg" ]
+then
+	cp -v "/dev/${INSTALLDISK}${BOOTPART}/syslinux/syslinux.cfg" /
+fi
 mkfs.ext4 "/dev/${INSTALLDISK}${BOOTPART}" # the boot partition
 mkfs.ext4 /dev/mapper/${LVMGROUP}-root
 mkfs.ext4 /dev/mapper/${LVMGROUP}-home
@@ -214,6 +219,12 @@ AnyKey
 arch-chroot /mnt /vmconfigure.bash "$INSTALLINGINVM" "${INSTALLDISK}${SYSTEMPART}" "$LVMGROUP"
 echo
 echo "Returned from chroot."
+echo
+# Copy backup of syslinux.cfg back
+if [ -e "/syslinux.cfg" ]
+then
+	cp -v /syslinux.cfg "/dev/${INSTALLDISK}${BOOTPART}/syslinux/syslinux.cfg.vminstall" /
+fi
 echo
 echo "The terminal portion of the install has finished."
 echo "Next, the computer will reboot into the new installation"
