@@ -19,6 +19,19 @@ AnyKey()
 	read ANYKEY
 }
 
+Usage()
+{
+	echo "Usage: $0 installinvm installdisk partnumber lvmgroup"
+	echo "  ex: vmconfigure.bash Y sda 2 vg0"
+	exit 1
+}
+
+AnyKey()
+{
+	echo "Press any key when ready or [Ctr]-[C] to cancel."
+	read ANYKEY
+}
+
 if [ "$1" = "Y" -o "$1" = "y" -o "$1." = "." ]
 then
 	INSTALLINGINVM="Y"

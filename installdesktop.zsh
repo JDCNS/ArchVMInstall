@@ -16,13 +16,23 @@
 # Requirements: Working network and base installation, sudo installed
 # (assumes you will be logged in as your regular user and not root).
 
-INSTALLINGINVM="Y"
-
 AnyKey()
 {
 	echo "Press any key when ready or [Ctr]-[C] to cancel."
 	read ANYKEY
 }
+
+# Well, after setting up a test machine, you might want to do the real thing, and for me
+# it is far too easy to forget to change this variable (not sure why, it just is).
+echo
+echo -n "Are you installing in a VM [Y/n]? "
+read INSTALLINGINVM
+if [ "$INSTALLINGINVM" = "y" -o "$INSTALLINGINVM" = "Y" -o "$INSTALLINGINVM." = "." ]
+then
+	INSTALLINGINVM="Y"
+else
+	INSTALLINGINVM="N"
+fi
 
 echo "Checking network..."
 ping -c3 www.google.com
